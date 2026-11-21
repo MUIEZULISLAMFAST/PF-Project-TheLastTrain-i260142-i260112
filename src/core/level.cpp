@@ -241,7 +241,6 @@ bool loadBuildingMap(const char* filename,
             }
         }
     }
-
 //now after all validations i want to are coping data to original arrays so that it would be a safety meausre
 // copying connections array
 for (int i=0;i<NUM_FLOORS;i++){
@@ -275,9 +274,18 @@ bool loadInitialState(const char* filename,
     if (filename==nullptr || filename[0]=='\0') {
         return false;
     }
+    
     if (inventory==nullptr || objectives==nullptr) {
         return false;
     }
+    //creating temporary varaiables and will store to original varaiables after all validation took place because this will cause serious problem 
+    int tempEnergy=0;
+    int tempTime=0;
+    int tempScore=0;
+    int tempInventoryCount=0;
+    int tempEmergencyTripsleft=0;
+    char tempInventory[MAX_INVENTORY_CAPACITY]={};
+    char tempObjectives[NUM_OBJECTIVES]={};
     ifstream file(filename);
     //check weather file open successfully or there is any error
     if(!file.is_open()){
