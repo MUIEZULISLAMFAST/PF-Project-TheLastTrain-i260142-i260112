@@ -8,4 +8,6 @@ bool stringEquals(const char* a, const char* b);
 void printHeader(const char* title);
 void clearScreen();
 
+
+
 #endif // UTIL_H

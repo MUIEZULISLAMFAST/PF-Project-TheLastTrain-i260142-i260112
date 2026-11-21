@@ -21,3 +21,41 @@ bool validateStartingRoom(int startFloor, int startRoom,
 const char* getEntityName(char entitySymbol);
 
 #endif // LEVEL_H
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
