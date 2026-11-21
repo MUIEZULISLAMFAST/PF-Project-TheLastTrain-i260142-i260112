@@ -283,9 +283,9 @@ bool loadInitialState(const char* filename,
     int tempTime=0;
     int tempScore=0;
     int tempInventoryCount=0;
-    int tempEmergencyTripsleft=0;
+    int tempEmergencyTripsLeft=0;
     char tempInventory[MAX_INVENTORY_CAPACITY]={};
-    char tempObjectives[NUM_OBJECTIVES]={};
+    bool tempObjectives[NUM_OBJECTIVES]={};
     ifstream file(filename);
     //check weather file open successfully or there is any error
     if(!file.is_open()){
@@ -294,10 +294,10 @@ bool loadInitialState(const char* filename,
     char line[MAX_LINE_LEN];
     bool verifier[17]={false};
     for(int i=0; i<NUM_OBJECTIVES;i++){
-    objectives[i] = false;
+        tempObjectives[i] = false;
     }
-    inventoryCount=0;
-    emergencyTripsLeft=0;
+    tempInventoryCount=0;
+    tempEmergencyTripsLeft=0;
     while(file.getline(line,MAX_LINE_LEN)){
        trimWhitespace(line);
        int k=0;
@@ -358,7 +358,7 @@ bool loadInitialState(const char* filename,
            return false;
         if(currentStateVariableValueInt!=INITIAL_ENERGY)
            return false;
-        energy=currentStateVariableValueInt;
+        tempEnergy=currentStateVariableValueInt;
         verifier[2]=true;
     }
     else if(currentStateVariable == "INITIAL_TIME"){
@@ -366,7 +366,7 @@ bool loadInitialState(const char* filename,
             return false;
         if(currentStateVariableValueInt!=INITIAL_TIME)
            return false;
-        time = currentStateVariableValueInt;
+        tempTime=currentStateVariableValueInt;
         verifier[3]=true;
     }
     else if(currentStateVariable=="INITIAL_SCORE"){
@@ -374,7 +374,7 @@ bool loadInitialState(const char* filename,
             return false;
         if(currentStateVariableValueInt!=INITIAL_SCORE)
             return false;
-        score=currentStateVariableValueInt;
+        tempScore=currentStateVariableValueInt;
         verifier[4]=true;
     }
     else if(currentStateVariable=="MAX_ENERGY"){
@@ -394,9 +394,9 @@ bool loadInitialState(const char* filename,
     else if(currentStateVariable=="INITIAL_INVENTORY"){
         if(verifier[7] || currentStateVariableValue != "NONE")
             return false;
-        inventoryCount = 0;
+        tempInventoryCount = 0;
         for(int i=0;i<MAX_INVENTORY_CAPACITY;i++){
-            inventory[i]='\0';
+            tempInventory[i]='\0';
         }
         verifier[7]=true;
         }
@@ -404,9 +404,9 @@ bool loadInitialState(const char* filename,
         if(verifier[8])
             return false;
         if(currentStateVariableValue=="YES")
-            objectives[OBJ_PASSENGER_RESCUED]=true;
+            tempObjectives[OBJ_PASSENGER_RESCUED]=true;
         else if(currentStateVariableValue=="NO")
-            objectives[OBJ_PASSENGER_RESCUED]=false;
+            tempObjectives[OBJ_PASSENGER_RESCUED]=false;
         else
             return false;
         verifier[8] = true;
@@ -415,9 +415,9 @@ bool loadInitialState(const char* filename,
         if(verifier[9])
             return false;
         if(currentStateVariableValue=="YES")
-            objectives[OBJ_CAT_SECURED]=true;
+            tempObjectives[OBJ_CAT_SECURED]=true;
         else if(currentStateVariableValue=="NO")
-            objectives[OBJ_CAT_SECURED]=false;
+            tempObjectives[OBJ_CAT_SECURED]=false;
         else
             return false;
         verifier[9]=true;
@@ -425,18 +425,18 @@ bool loadInitialState(const char* filename,
     else if(currentStateVariable=="CLUES_COLLECTED"){
         if(verifier[10] || currentStateVariableValue!="NONE")
             return false;
-        objectives[OBJ_CLUE_4]=false;
-        objectives[OBJ_CLUE_2]=false;
-        objectives[OBJ_CLUE_7]=false;
+        tempObjectives[OBJ_CLUE_4]=false;
+        tempObjectives[OBJ_CLUE_2]=false;
+        tempObjectives[OBJ_CLUE_7]=false;
         verifier[10]=true;
     }
     else if(currentStateVariable=="CABINET_UNLOCKED"){
        if(verifier[11])
            return false;
        if(currentStateVariableValue=="YES")
-           objectives[OBJ_CABINET_UNLOCKED]=true;
+           tempObjectives[OBJ_CABINET_UNLOCKED]=true;
        else if(currentStateVariableValue=="NO")
-            objectives[OBJ_CABINET_UNLOCKED]=false;
+            tempObjectives[OBJ_CABINET_UNLOCKED]=false;
         else
            return false;
         verifier[11]=true;
@@ -445,9 +445,9 @@ bool loadInitialState(const char* filename,
         if(verifier[12])
             return false;
         if(currentStateVariableValue=="YES")
-            objectives[OBJ_TRAIN_KEY]=true;
+            tempObjectives[OBJ_TRAIN_KEY]=true;
         else if(currentStateVariableValue=="NO")
-            objectives[OBJ_TRAIN_KEY]=false;
+            tempObjectives[OBJ_TRAIN_KEY]=false;
         else
             return false;
         verifier[12]=true;
@@ -456,9 +456,9 @@ bool loadInitialState(const char* filename,
         if(verifier[13])
             return false;
         if(currentStateVariableValue=="YES")
-            objectives[OBJ_FUSE_INSTALLED]=true;
+            tempObjectives[OBJ_FUSE_INSTALLED]=true;
         else if(currentStateVariableValue=="NO")
-            objectives[OBJ_FUSE_INSTALLED]=false;
+            tempObjectives[OBJ_FUSE_INSTALLED]=false;
         else
             return false;
         verifier[13]=true;
@@ -467,9 +467,9 @@ bool loadInitialState(const char* filename,
         if(verifier[14])
             return false;
         if(currentStateVariableValue=="YES")
-            objectives[OBJ_LIFT_PASS]=true;
+            tempObjectives[OBJ_LIFT_PASS]=true;
         else if(currentStateVariableValue=="NO")
-            objectives[OBJ_LIFT_PASS]=false;
+            tempObjectives[OBJ_LIFT_PASS]=false;
         else
             return false;
         verifier[14]=true;
@@ -478,9 +478,9 @@ bool loadInitialState(const char* filename,
         if(verifier[15])
             return false;
         if(currentStateVariableValue=="YES")
-            objectives[OBJ_TRAIN_PREPARED]=true;
+            tempObjectives[OBJ_TRAIN_PREPARED]=true;
         else if(currentStateVariableValue=="NO")
-            objectives[OBJ_TRAIN_PREPARED]=false;
+            tempObjectives[OBJ_TRAIN_PREPARED]=false;
         else
             return false;
         verifier[15]=true;
@@ -510,6 +510,17 @@ bool loadInitialState(const char* filename,
         if(!verifier[i]){
             return false;
         }
+    }
+    time=tempTime;
+    energy=tempEnergy;
+    score= tempScore;
+    inventoryCount=tempInventoryCount;
+    emergencyTripsLeft= tempEmergencyTripsLeft;
+    for(int i=0;i<MAX_INVENTORY_CAPACITY;i++){
+        inventory[i]=tempInventory[i];
+    }
+    for(int i=0; i<NUM_OBJECTIVES;i++){
+        objectives[i]=tempObjectives[i];
     }
     return true;
 }
