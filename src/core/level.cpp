@@ -60,8 +60,8 @@ bool loadBuildingMap(const char* filename,
     // this is our tracing array like at last we check from it weather every floor-room location finds and if find it will give us the starting index of every floor room it does'nt store the room or floor index like we imagine in ray it represents text file building.txt line starting location of text etc F5-R1
     int roomLabelPositions[NUM_FLOORS][ROOMS_PER_FLOOR];
     for (int i=0;i<NUM_FLOORS;i++){
-        for (int j = 0; j < ROOMS_PER_FLOOR; j++){
-            roomLabelPositions[i][j] = -2;
+        for (int j=0; j<ROOMS_PER_FLOOR;j++){
+            roomLabelPositions[i][j]=-2;
         }
     }
     //
@@ -78,52 +78,50 @@ bool loadBuildingMap(const char* filename,
                 return false;
             }
             int lineLength = 0;
-            while (line[lineLength] != '\0') {
+            while (line[lineLength]!='\0') {
                 lineLength++;
             }
             for (int i=0; line[i]!='\0';i++){
-            int roomIndex = -1;
-            char current = line[i];
+            int roomIndex =-1;
+            char current =line[i];
             bool Entity_validator = (current==ENT_MASTER_KEY) || (current==ENT_ENERGY_PACK) || ( current==ENT_EMERGENCY_TOOLKIT) || (current==ENT_CLUE_4) ||(current==ENT_FUSE) ||(current==ENT_CAT) ||(current==ENT_CONTROL_PANEL) ||(current==ENT_LIFT_PASS) ||(current==ENT_PASSENGER) ||(current==ENT_MEDICAL_KIT) ||(current==ENT_EMERGENCY_CARD) ||(current==ENT_CLUE_2) ||(current==ENT_CLUE_7) ||(current==ENT_CABINET_TRAIN_KEY) ||(current==ENT_CAT_CARRIER) ||(current==ENT_OBSERVATION_TOKEN);
 
         if (Entity_validator){
             for (int j=0;j<ROOMS_PER_FLOOR;j++){
-               int labelPosition = roomLabelPositions[previousFloor][j];
-               if (labelPosition < 0) {
+               int labelPosition=roomLabelPositions[previousFloor][j];
+               if (labelPosition<0) {
                     return false;
                 }
-               if (labelPosition >= lineLength) {
+               if (labelPosition>=lineLength) {
                    return false;
                 }
-            int leftBoundary = -1;
-            int rightBoundary = -1;
-
+            int leftBoundary=-1;
+            int rightBoundary=-1;
             // Find nearest wall on the left.
             for (int k = labelPosition - 1; k >= 0; k--) {
-                if (line[k] == '|') {
-                    leftBoundary = k;
+                if (line[k]=='|') {
+                    leftBoundary=k;
                     break;
         }
         }
         // Find nearest wall on the right.
-        for (int k = labelPosition; k<lineLength; k++) {
-            if (line[k] == '|') {
-                rightBoundary = k;
+        for (int k=labelPosition;k<lineLength;k++) {
+            if (line[k]=='|') {
+                rightBoundary=k;
                 break;
         }
         }
-       if (leftBoundary != -1 && rightBoundary != -1 &&
-            i > leftBoundary && i < rightBoundary) {
-            roomIndex = j;
+       if (leftBoundary!=-1 && rightBoundary!=-1 &&
+            i>leftBoundary && i<rightBoundary) {
+            roomIndex=j;
             break;
         }
 }
             if (roomIndex<0 || roomIndex>=ROOMS_PER_FLOOR) {
-                return false ;
+                return false;
             }
-            
             if (tempEntityCounts[previousFloor][roomIndex]
-                >= MAX_ENTITIES_PER_ROOM) {
+                >=MAX_ENTITIES_PER_ROOM){
                 return false;
             }
             int position=tempEntityCounts[previousFloor][roomIndex];
@@ -134,7 +132,7 @@ bool loadBuildingMap(const char* filename,
             return false;
         }
     }
-    previousLineStatus = false;
+    previousLineStatus=false;
 }
         int currentLinePositions[ROOMS_PER_FLOOR];
         for (int i=0;i<ROOMS_PER_FLOOR;i++){
