@@ -607,5 +607,62 @@ while(changed){
 return visitedConn[0][1] || visitedConn[3][1];
 //so my this logic will prevent the player in game to choose in valid room in which he go trapped 
 }
-const char* getEntityName(char entitySymbol);
+// THIS FUNCTION IS MEANT TO RETURN POINTER STARTING ADDRESS OF ACARACTER NAME THAT WE WILL LATER FIND OUT.
+const char* getEntityName(char entitySymbol){
+    if (entitySymbol==ENT_MASTER_KEY){
+        return "master key";
+    }
+    else if (entitySymbol==ENT_ENERGY_PACK){
+        return "Energy Pack";
+    }
+    else if (entitySymbol==ENT_EMERGENCY_TOOLKIT){
+        return "Emergency Toolkit";
+    }
+    else if (entitySymbol==ENT_CLUE_4){
+        return "Clue Digit 4";
+    }
+    else if (entitySymbol==ENT_FUSE){
+        return "Fuse";
+    }
+    else if (entitySymbol==ENT_CAT){
+        return "Stranded Cat";
+    }
+    else if (entitySymbol==ENT_CONTROL_PANEL){
+        return "Control Panel Terminal";
+    }
+    else if (entitySymbol==ENT_LIFT_PASS){
+        return "Lift Pass";
+    }
+    else if (entitySymbol==ENT_PASSENGER){
+        return "Stranded Passenger";
+    }
+    else if (entitySymbol==ENT_MEDICAL_KIT){
+        return "Medical Kit";
+    }
+    else if (entitySymbol==ENT_EMERGENCY_CARD){
+        return "Emergency Access Card";
+    }
+    else if (entitySymbol==ENT_CLUE_2){
+        return "Clue Digit 2";
+    }
+    else if (entitySymbol==ENT_CLUE_7){
+        return "Clue Digit 7";
+    }
+    else if (entitySymbol==ENT_CABINET_TRAIN_KEY){
+        return "Cabinet/Train key";
+    }
+    else if (entitySymbol==ENT_CAT_CARRIER){
+        return "Cat Carrier";
+    }
+    else if (entitySymbol==ENT_OBSERVATION_TOKEN){
+        return "Observation Token";
+    }
+    else if (entitySymbol==ENT_NONE){
+        return "None ";
+    }
+    else{
+        return "Unknown Entity";
+    }
+}
+
 
