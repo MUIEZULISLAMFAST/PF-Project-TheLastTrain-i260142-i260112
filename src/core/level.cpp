@@ -543,7 +543,7 @@ if(startRoom>ROOMS_PER_FLOOR||startRoom<1){
 //declaring an array to have trace of visited room 
 bool visitedConn[NUM_FLOORS][ROOMS_PER_FLOOR]={};
 //declaring user entered valid roomnumber or floor number as true becuse it is visited 
-visitedConn[startFloor-1][startRoom-1];
+visitedConn[startFloor-1][startRoom-1]=true;
 //declaring a flag to make sure that any new room discovered or not ?
 //we want atleast one iteration 
 bool changed=true;
@@ -558,8 +558,11 @@ while(changed){
                 continue;
             }
             //checking right neighbour weather we got access to a righ room andweather right room even exists or not.
-            if(j<ROOMS_PER_FLOOR-1 && !visitedConn[i][j]){
+            if(j<ROOMS_PER_FLOOR-1 && !visitedConn[i][j+1]){
                 char c=horizontalConn[i][j];
+                if (c!=CONN_NONE && c!=CONN_DOOR && c!=CONN_WINDOW && c!=CONN_LOCKED_DOOR && c!=CONN_SOLID_WALL){
+                    return false;
+                }
                 if(c==CONN_DOOR || c==CONN_WINDOW){
                     visitedConn[i][j+1]=true;
                     changed=true;
@@ -568,6 +571,9 @@ while(changed){
             //checking left neighbour room weather we got access into that room or weather even it exsists or not ?
             if(j>0 && !visitedConn[i][j-1]){
                 char c= horizontalConn[i][j-1];
+                if (c!=CONN_NONE && c!=CONN_DOOR && c!=CONN_WINDOW && c!=CONN_LOCKED_DOOR && c!=CONN_SOLID_WALL){
+                    return false;
+                }
                 if(c==CONN_DOOR || c== CONN_WINDOW){
                     visitedConn[i][j-1]=true;
                     changed=true;
@@ -578,12 +584,12 @@ while(changed){
             if (j==0){
                 //upward floor cases
                 if((i==0 || i==1 || i==3 ) && !visitedConn[i+1][j]){
-                    visitedConn[i+1][j]==true;
+                    visitedConn[i+1][j]=true;
                     changed=true;
                 }
                 //below floor cases
                 if((i==1 || i==2 || i==4)&& !visitedConn[i-1][j]){
-                   visitedConn[i-1][j]==true;
+                   visitedConn[i-1][j]=true;
                    changed=true;
                 }
             }
@@ -591,7 +597,7 @@ while(changed){
             //lift 1: f1/f2, rooms r2 and r3 all connect eachother
             if(i<=1 &&(j==1 || j==2)){
                 for(int li=0;li<=1;li++){
-                    for(int lj=0;lj<=2;lj++){
+                    for(int lj=1;lj<=2;lj++){
                         if(!visitedConn[li][lj]){
                             visitedConn[li][lj]=true;
                             changed=true;
