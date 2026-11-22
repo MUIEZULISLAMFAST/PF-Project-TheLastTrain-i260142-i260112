@@ -4,6 +4,7 @@
 #include "state.h"
 #include "config.h"
 #include <climits>
+#include <string>
 // Building & Level Parsing using primitive parallel arrays
 
 bool loadBuildingMap(const char* filename,
@@ -525,6 +526,86 @@ bool loadInitialState(const char* filename,
     return true;
 }
 bool validateStartingRoom(int startFloor, int startRoom,
-                          const char horizontalConn[NUM_FLOORS][ROOMS_PER_FLOOR - 1]);
+                          const char horizontalConn[NUM_FLOORS][ROOMS_PER_FLOOR - 1]){
+//check validations first:
+//horizontalconn array has valid address ?
+if (horizontalConn==nullptr){
+    return false;
+}
+//to check player entered room is valid or not 
+if(startFloor>NUM_FLOORS||startFloor<1){
+    return false;
+}
+//to check player choose right room or not 
+if(startRoom>ROOMS_PER_FLOOR||startRoom<1){
+    return false;
+}
+//declaring an array to have trace of visited room 
+bool visitedConn[NUM_FLOORS][ROOMS_PER_FLOOR]={};
+//declaring user entered valid roomnumber or floor number as true becuse it is visited 
+visitedConn[startFloor-1][startRoom-1];
+//declaring a flag to make sure that any new room discovered or not ?
+//we want atleast one iteration 
+bool changed=true;
+//we want to run the loop till changes are occuring and everything is fine 
+while(changed){
+    changed=false;
+    //loop through floors
+    for(int i=0;i<NUM_FLOORS;i++){
+        //loop through rooms
+        for(int j=0;j<ROOMS_PER_FLOOR;j++){
+            if(!visitedConn[i][j]){
+                continue;
+            }
+            //checking right neighbour weather we got access to a righ room andweather right room even exists or not.
+            if(j<ROOMS_PER_FLOOR-1 && !visitedConn[i][j]){
+                char c=horizontalConn[i][j];
+                if(c==CONN_DOOR || c==CONN_WINDOW){
+                    visitedConn[i][j+1]=true;
+                    changed=true;
+                }
+            }
+            //checking left neighbour room weather we got access into that room or weather even it exsists or not ?
+            if(j>0 && !visitedConn[i][j-1]){
+                char c= horizontalConn[i][j-1];
+                if(c==CONN_DOOR || c== CONN_WINDOW){
+                    visitedConn[i][j-1]=true;
+                    changed=true;
+                }
+            }
+            //checking for staircases beacuse stair casses connect floors very first rooms 
+            // S1 (F1-F2) S2 (F2-F3) S3 (F4-F5)
+            if (j==0){
+                //upward floor cases
+                if((i==0 || i==1 || i==3 ) && !visitedConn[i+1][j]){
+                    visitedConn[i+1][j]==true;
+                    changed=true;
+                }
+                //below floor cases
+                if((i==1 || i==2 || i==4)&& !visitedConn[i-1][j]){
+                   visitedConn[i-1][j]==true;
+                   changed=true;
+                }
+            }
+            //checking lift1 weather lift on allow movement how influence roomreach
+            //lift 1: f1/f2, rooms r2 and r3 all connect eachother
+            if(i<=1 &&(j==1 || j==2)){
+                for(int li=0;li<=1;li++){
+                    for(int lj=0;lj<=2;lj++){
+                        if(!visitedConn[li][lj]){
+                            visitedConn[li][lj]=true;
+                            changed=true;
+                        }
+                    }
+                }
+            }
+            //lift 2 not included because its not functional at the strat of game and we are preparing game initial envoirnmment here
+        }
+    }
+}
+//now finally check player got access either to master room key or emergency card room 
+return visitedConn[0][1] || visitedConn[3][1];
+//so my this logic will prevent the player in game to choose in valid room in which he go trapped 
+}
 const char* getEntityName(char entitySymbol);
 
