@@ -4,9 +4,9 @@
 #include "state.h"
 #include "config.h"
 #include <climits>
-#include <string>
+using namespace std;
+#include<string>
 // Building & Level Parsing using primitive parallel arrays
-
 bool loadBuildingMap(const char* filename,
                      char horizontalConn[NUM_FLOORS][ROOMS_PER_FLOOR - 1],
                      char roomEntities[NUM_FLOORS][ROOMS_PER_FLOOR][MAX_ENTITIES_PER_ROOM],
