@@ -54,5 +54,7 @@ const int SCORE_INSTALL_FUSE        = 20;
 const int SCORE_LIFT_PASS           = 20;
 const int SCORE_PREPARE_TRAIN       = 100;
 const int SCORE_MISSION_VICTORY     = 100;
-
+// 
+//self declared beause we need it in many function s
+const int MAX_SCORE = 520;
 #endif // CONFIG_H

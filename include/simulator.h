@@ -41,7 +41,6 @@ bool handleUnlockCabinetCommand(const char* code, int currentFloor, int currentR
                                 bool objectives[NUM_OBJECTIVES], int& score,
                                 char roomEntities[NUM_FLOORS][ROOMS_PER_FLOOR][MAX_ENTITIES_PER_ROOM],
                                 int& entityCount);
-
 bool checkEndConditions(int energy, int time, const bool objectives[NUM_OBJECTIVES]);
 
 #endif // SIMULATOR_H
