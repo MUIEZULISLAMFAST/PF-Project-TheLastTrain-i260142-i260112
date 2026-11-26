@@ -1,4 +1,5 @@
 #include<iostream>
+#include "config.h"
 #include "simulator.h"
 #include "physics.h"
 #include "switches.h"
@@ -7,6 +8,7 @@
 #include "viewer_iface.h"
 #include "util.h"
 #include "level.h"
+#include <iomanip>
 using namespace std;
 // Modular simulation loop using primitive variables
 //function 1-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -21,7 +23,30 @@ void runSimulation(int& playerFloor, int& playerRoom,
 
 
 
+
+
+
+
+
+
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -29,3 +29,27 @@ if((fromFloor==1 && toFloor==3) || (fromFloor==1 && toFloor==4) || (fromFloor==3
 //no condition satisfied then 
 return false;
 }
+//function 3-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+bool unlockFloor3Door(const char inventory[MAX_INVENTORY_CAPACITY], int inventoryCount){
+    //validation first
+    if (inventory==nullptr){
+        return false;
+    }
+    if(inventoryCount>MAX_INVENTORY_CAPACITY || inventoryCount<0){
+        return false;
+    }
+    bool key=false;
+    for(int i=0; i<inventoryCount;i++){
+        if(inventory[i]==ENT_MASTER_KEY){
+            key=true;
+        }
+    }
+    if(key){
+       return true;
+    }
+    //reject all other casses
+    else{
+        return false;
+    }
+}
+
