@@ -382,7 +382,409 @@ if(emergencyTrip){
 return true;
 }
 
+//function 3-
+bool handleInspectCommand(int currentFloor, int currentRoom,
+                          int& energy, int& time,
+                          const char roomEntities[NUM_FLOORS][ROOMS_PER_FLOOR][MAX_ENTITIES_PER_ROOM],
+                          int entityCount,
+                          bool objectives[NUM_OBJECTIVES], int& score){
+//validation of current location parameter to function 
+if(currentFloor<1 || currentFloor>NUM_FLOORS || currentRoom>ROOMS_PER_FLOOR ||currentRoom<1){
+    cout<<"Invalid Current Location";
+    return false;
+}
+//now validating entity count 
+if(entityCount<0 || entityCount>MAX_ENTITIES_PER_ROOM){
+    cout<<"Invalid room data."<<endl;
+    return false;
+}
+//validating all avalible sources we have 
+if(energy<-COST_INSPECT_ENERGY || time<-COST_INSPECT_TIME){
+    cout<<"Insufficient energy or time ! ";
+    return false;
+}
+//divide room entities to three variable so it will be easy to detech them 
+int usefulObjects=0;
+int cluesfound=0;
+int livingEntities=0;
 
+for(int i=0;i<entityCount;i++){
+    char entity=roomEntities[currentFloor-1][currentRoom-1][i];
+    if(entity==ENT_CLUE_7 || entity==ENT_CLUE_4 || entity==ENT_CLUE_2){
+        cluesfound+=1;
+    }
+    else if(entity==ENT_CAT || entity==ENT_PASSENGER){
+        //living objects e.g cat / passenger
+        livingEntities+=1;
+    }
+    else if(entity!=ENT_NONE){
+        usefulObjects++;
+    }
+}
+//now displaying game player the results
+cout<<"\n";
+cout<<setfill('=')<<setw(10)<<" ROOM INSPECTION "<<setfill('=')<<setw(10)<<"";
+cout<<"Location: Floor "<<currentFloor<<", Room "<<currentRoom<<endl;
+//checking if in room no entity is found 
+if(entityCount==0){
+    cout<<"This Room appears to be empty. "<<endl;
+}
+else{
+    for(int i=0;i<entityCount;i++){
+        char entity=roomEntities[currentFloor-1][currentRoom-1][i];
+        if(entity!=ENT_NONE){
+            //using function to display name to player 
+            cout<<" "<<getEntityName(entity)<<endl;
+        }
+    }
+}
+//now displaying the entities we find in room 
+cout<<'\n';
+cout<<"Inspection Findings"<<endl;
+cout<<"Clues Found: "<<cluesfound<<endl;
+cout<<"Useful objects: "<<usefulObjects<<endl;
+cout<<"Living entities: "<<livingEntities<<endl;
+//now appling all inspection costs like player inspect room so we will deduct his energy and time accordingly
+energy+=COST_INSPECT_ENERGY;
+time+=COST_INSPECT_TIME;
+
+cout<<"\nInspection completed successfully ."<<endl;
+cout<<"Energy Remaining: "<<energy<<endl;
+cout<<"Time remaining: "<<time<<endl;
+cout<<setfill('=')<<setw(40)<<endl;
+//everything fine then return true
+return true;
+}
+//function 4-----------------------------------------------------------------------------------------------------------------------------------------
+//this function will help to collect the enetity 
+bool handleCollectCommand(char itemSymbol, int currentFloor, int currentRoom,
+                          int& energy, int& time, int& score,
+                          char roomEntities[NUM_FLOORS][ROOMS_PER_FLOOR][MAX_ENTITIES_PER_ROOM],
+                          int& entityCount,
+                          char inventory[MAX_INVENTORY_CAPACITY], int& inventoryCount,
+                          bool objectives[NUM_OBJECTIVES]){
+    //now firstly validate the parameters of functions
+    if(currentFloor<1 || currentFloor>NUM_FLOORS|| currentRoom<1 || currentRoom>ROOMS_PER_FLOOR|| entityCount<0 || entityCount>MAX_ENTITIES_PER_ROOM || inventoryCount<0 || inventoryCount>MAX_INVENTORY_CAPACITY || energy<0 || time<0 || score<0 || score>MAX_SCORE){
+        //displaying error
+        cout<<"Invalid collection data."<<endl;
+        return false;
+    }
+    //first of all find the index of entity where it is present we used it in later to remove that item from room
+    int itemPosition=-1;
+    for(int i=0;i<entityCount;i++){
+        if(roomEntities[currentFloor-1][currentRoom-1][i]==itemSymbol){
+            itemPosition=i;
+            break;
+        }
+    }
+    if(itemPosition==-1){
+        cout<<"Invalid Item ! This entity is not present in current room";
+        return false;
+    }
+    //using flag
+    bool collectable=false;
+    //now checking the weather we can collect this entity or not 
+    if(itemSymbol==ENT_MASTER_KEY || itemSymbol==ENT_ENERGY_PACK || itemSymbol==ENT_EMERGENCY_TOOLKIT || itemSymbol==ENT_CLUE_2 || itemSymbol==ENT_CLUE_7 || itemSymbol==ENT_CLUE_4 || itemSymbol==ENT_FUSE || itemSymbol==ENT_LIFT_PASS || itemSymbol==ENT_MEDICAL_KIT || itemSymbol==ENT_EMERGENCY_CARD || itemSymbol==ENT_CABINET_TRAIN_KEY || itemSymbol==ENT_CAT_CARRIER || itemSymbol==ENT_OBSERVATION_TOKEN){
+        //if entites are from above list then it is collectable
+        collectable=true;
+    }
+    //to add energy and time packets altough inventory is full beacus ethose have nothing to do with inventory 
+    bool automaticItem = (itemSymbol==ENT_ENERGY_PACK ||itemSymbol==ENT_EMERGENCY_TOOLKIT || itemSymbol==ENT_OBSERVATION_TOKEN);
+    //to creject entities not in our collection list
+    if(!collectable){
+    cout<<"This entity cannot be collected directly."<<endl;
+    return false;
+    }
+    if(inventoryCount>=MAX_INVENTORY_CAPACITY && !automaticItem){
+        cout<<"Your inventory donot have space"<<endl;
+        return false;
+    }
+    //checking energy and time if player has enough to bear to collect entity
+    if(energy<-COST_ITEM_PICKUP_ENERGY || time<-COST_ITEM_PICKUP_TIME){
+        cout<<"Not Enough energy or time to collect this item."<<endl;
+        return false;
+    }
+    if(itemSymbol==ENT_CABINET_TRAIN_KEY && !objectives[OBJ_CABINET_UNLOCKED]){
+    cout<<"Unlock the cabinet first."<<endl;
+    return false;
+    }
+    if(itemSymbol==ENT_ENERGY_PACK){
+       energy+=BONUS_ENERGY_PACK;
+       if(energy>MAX_ENERGY)
+            energy=MAX_ENERGY;
+    }
+    else if(itemSymbol==ENT_EMERGENCY_TOOLKIT){
+        energy+=BONUS_EMERGENCY_TOOLKIT;
+        if(energy>MAX_ENERGY)
+            energy=MAX_ENERGY;
+    }
+    else if(itemSymbol==ENT_OBSERVATION_TOKEN){
+       time+=BONUS_OBSERVATION_TOKEN;
+       if(time>MAX_TIME)
+           time=MAX_TIME;
+    }
+    //after all checks pass we are adding the entity to next avalible inventory place
+    if(itemSymbol!=ENT_ENERGY_PACK && itemSymbol!=ENT_EMERGENCY_TOOLKIT &&    itemSymbol!=ENT_OBSERVATION_TOKEN){
+    inventory[inventoryCount]=itemSymbol;
+    inventoryCount++;
+    }
+    //now when user collect it we have to remove the item from room by shifting later entities
+    for(int i=itemPosition;i<entityCount-1;i++){
+        roomEntities[currentFloor-1][currentRoom-1][i]=roomEntities[currentFloor-1][currentRoom-1][i+1];
+    } 
+    //entitycount substraction now
+    entityCount--;
+    roomEntities[currentFloor-1][currentRoom-1][entityCount]=ENT_NONE;
+    //now if the entity belongs to any objective we will update that objective status
+    if(itemSymbol == ENT_FUSE){
+    objectives[OBJ_FUSE_COLLECTED]=true;
+    }
+    else if(itemSymbol==ENT_MASTER_KEY){
+        objectives[OBJ_MASTER_KEY]=true;
+        score+=SCORE_KEY_COLLECT;
+    }
+    else if(itemSymbol==ENT_CLUE_4){
+        objectives[OBJ_CLUE_4]=true;
+        //this one also has score to complete objective so 
+        score+=SCORE_CLUE_FOUND;
+    }
+    else if(itemSymbol==ENT_CLUE_2){
+        objectives[OBJ_CLUE_2]=true;
+        score+=SCORE_CLUE_FOUND;
+    }
+    else if(itemSymbol==ENT_CLUE_7){
+        objectives[OBJ_CLUE_7]=true;
+        score+=SCORE_CLUE_FOUND;
+    }
+    else if(itemSymbol==ENT_LIFT_PASS){
+        objectives[OBJ_LIFT_PASS]=true;
+        score+=SCORE_LIFT_PASS;
+    }
+    else if(itemSymbol==ENT_CABINET_TRAIN_KEY){
+        objectives[OBJ_TRAIN_KEY]=true;
+        score+=SCORE_TRAIN_KEY;
+    }
+    else if(itemSymbol==ENT_CAT_CARRIER){
+        objectives[OBJ_CAT_CARRIER]=true;
+    }
+    //now collecting item also apply energy /time cost so applying it
+    //beause they are declared -ve in config so add will automaticaaly subtract 
+    energy+=COST_ITEM_PICKUP_ENERGY;
+    time+=COST_ITEM_PICKUP_TIME;
+    //now keeping score within bound 
+    if(score>MAX_SCORE){
+        score=MAX_SCORE;
+    }
+    //now displaying player the results
+    cout<<getEntityName(itemSymbol)<<"Collected Successfully !"<<endl;
+    cout<<"Energy Remaining : "<<energy<<endl;
+    cout<<"Time Remaining : "<<time<<endl;
+    cout<<"Score: "<<score<<endl;
+    //everything goes fine then 
+    return true;
+}
+//function 5-----------------------------------------------------------------------------------------------------------------------------------------
+bool handleUseCommand(char itemSymbol, int currentFloor, int currentRoom,
+                      int& energy, int& time, int& score,
+                      char inventory[MAX_INVENTORY_CAPACITY], int& inventoryCount,
+                      bool objectives[NUM_OBJECTIVES]){
+if(inventory==nullptr || objectives==nullptr){
+    cout<<"Invalid Game Data"<<endl;
+    return false;
+}
+//again validating all functions parameter
+if(currentFloor<1 || currentFloor>NUM_FLOORS || currentRoom>ROOMS_PER_FLOOR || currentRoom<1 || energy<0 || time<0 || score<0 || score>MAX_SCORE ||inventoryCount<0 || inventoryCount>MAX_INVENTORY_CAPACITY){
+    cout<<"Invalid Game Data."<<endl;
+    return false;
+}
+//finding the selected item that is in inventory
+int ItemPosition=-1;
+for(int i=0;i<inventoryCount;i++){
+    if(inventory[i]==itemSymbol){
+        ItemPosition=i;
+        break;
+    }
+}
+if(ItemPosition==-1){
+    cout<<"You donot have this item"<<endl;
+    return false;
+}
+//determine where item must be used in current foor or current room
+int requiredFloor=0;
+int requiredRoom=0;
+if(itemSymbol==ENT_MEDICAL_KIT){
+    requiredFloor=4;
+    requiredRoom=1;
+}
+else if(itemSymbol==ENT_CAT_CARRIER){
+    requiredFloor=3;
+    requiredRoom=3;
+}
+else if(itemSymbol==ENT_FUSE){
+    requiredFloor=3;
+    requiredRoom=4;
+}
+else{
+    cout<<"This item cannot be used."<<endl;
+    return false;
+}
+//now checking weather weather player in required room 
+if(currentFloor!=requiredFloor || currentRoom!=requiredRoom){
+    cout<<"You are not in correct room to use this item";
+    return false;
+}
+
+//now preventing completing the same objective twice.
+if((itemSymbol==ENT_MEDICAL_KIT && objectives[OBJ_PASSENGER_RESCUED]) || (itemSymbol==ENT_CAT_CARRIER && objectives[OBJ_CAT_SECURED]) || (itemSymbol==ENT_FUSE && objectives[OBJ_FUSE_INSTALLED])){
+    cout<<"This objective already has been completed"<<endl;
+    return false;
+}
+//check energy and time before performing action
+if(energy<-COST_ITEM_USE_ENERGY||time<-COST_ITEM_USE_TIME){
+    cout<<"Not enough energy or time ";
+    return false;
+}
+//now after every possible check performing selecting item action 
+if(itemSymbol==ENT_MEDICAL_KIT){
+    objectives[OBJ_PASSENGER_RESCUED]=true;
+    //make changes to score accordingly
+    applyScoreDelta(score,100);
+    cout<<"Passenger Secured Successfully !"<<endl;
+}
+else if(itemSymbol==ENT_CAT_CARRIER){
+    objectives[OBJ_CAT_SECURED]=true;
+    applyScoreDelta(score,100);
+    cout<<"Cat Secured Successfully !"<<endl;
+}
+else if(itemSymbol==ENT_FUSE){
+    if(!installFuseControlPanel(inventory,inventoryCount,objectives,score)){
+        cout<<"Fuse installation failed."<<endl;
+        return false;
+    }
+    cout<<"Fuse installed successfully! "<<endl;
+    cout<<"Lift 2 is now operational"<<endl;
+}
+//now removing cat carrier and medical kit from inventory fuse is already removed by installfusecontrolpanel
+if(itemSymbol!=ENT_FUSE){
+    for(int i=ItemPosition;i<inventoryCount-1;i++){
+        inventory[i]=inventory[i+1];
+    }
+    inventoryCount-=1;
+    //replacing last item of array that we moved previously to left with ent_none 
+    inventory[inventoryCount]=ENT_NONE;
+}
+//now applying resource deduction by using entities 
+energy+=COST_ITEM_USE_ENERGY;
+time+=COST_ITEM_USE_TIME;
+
+//now displaying updated information 
+
+cout<<"Energy remaining: "<<energy<<endl;
+cout<<"Time remaining: "<<time<<endl;
+cout<<"Current score: "<<score<<endl;
+//after everything fine return true;
+return true;
+}
+bool handleUnlockCabinetCommand(const char* code, int currentFloor, int currentRoom,
+                                bool objectives[NUM_OBJECTIVES], int& score,
+                                char roomEntities[NUM_FLOORS][ROOMS_PER_FLOOR][MAX_ENTITIES_PER_ROOM],
+                                int& entityCount){
+//again first valiating function parameters 
+if(code==nullptr || roomEntities==nullptr || objectives==nullptr || currentFloor<1 || currentFloor>NUM_FLOORS || entityCount<0 || entityCount>MAX_ENTITIES_PER_ROOM || score<0 || score>MAX_SCORE || currentRoom<1 || currentRoom>ROOMS_PER_FLOOR){
+    cout<<"Invalid game data. "<<endl;
+    return false;
+}
+//now checking room and floor are valid where we can unlock the cabinet
+if(currentFloor!=5 || currentRoom!=1){
+    cout<<"the cabinet is located on the floor 5 in room 1. "<<endl;
+    return false;
+}
+//checking objective already not completed to prevent uncloking already unlock cabniet
+if(objectives[OBJ_CABINET_UNLOCKED]){
+    cout<<"The cabniet is already unlocked."<<endl;
+    return false;
+}
+//confirming weather all clues have been collected then allow unlocking cabniet
+if(!objectives[OBJ_CLUE_4]||!objectives[OBJ_CLUE_2]||!objectives[OBJ_CLUE_7]){
+    cout<<"You have not collect all Three clues yet. "<<endl;
+    return false;
+}
+//now we have to verify the code entered 
+if(!verifyCabinetCode(code,objectives)){
+    cout<<"Incorrect cabniet code."<<endl;
+    return false;
+}
+//now checking weather train key is laready in same room or not 
+int keyDetected=-1;
+for(int i=0;i<entityCount;i++){
+    if(roomEntities[4][0][i]==ENT_CABINET_TRAIN_KEY){
+        keyDetected=i;
+        break;
+    }
+}
+//represent train key if it is not in room .
+if(keyDetected==-1){
+    if(entityCount>=MAX_ENTITIES_PER_ROOM){
+        cout<<"There is no space to reveal Train key."<<endl;
+        return false;
+    }
+    roomEntities[4][0][entityCount]=ENT_CABINET_TRAIN_KEY;
+    entityCount+=1;
+}
+//updating the objective
+objectives[OBJ_CABINET_UNLOCKED]=true;
+//now adding bonus to resources because unlocking cabniet has bonus
+applyScoreDelta(score, 30);
+//now display to player
+cout<<"Correct Code! "<<endl;
+cout<<"Cabniet unlock successfully!"<<endl;
+cout<<"The train key is avalible in this room."<<endl;
+cout<<"You earned 30 points."<<endl;
+cout<<"Current Score: "<<score<<endl;
+return true;
+}
+bool checkEndConditions(int energy, int time, const bool objectives[NUM_OBJECTIVES]){
+    //first of all validating functions initial parameters 
+    if(objectives==nullptr){
+        cout<<"Invalid game state."<<endl;
+        return true;
+    }
+    //now we also have to checking if player has alredy won or not 
+    if(objectives[OBJ_MISSION_WON]){
+        cout<<"\n";
+        cout<<setfill('=')<<setw(40)<<endl;
+        cout<<setfill(' ')<<setw(10)<<"Mission Completed!"<<endl;
+        cout<<setfill('=')<<setw(40);
+        cout<<"You Successfully prepared and boarded the Train!"<<endl;
+        //everything fine then
+        return true;
+    }
+    //now checking weather function is already been failed or not 
+    if(objectives[OBJ_MISSION_FAILED]){
+        cout<<"\n";
+        cout<<setfill('=')<<setw(40)<<endl;
+        cout<<setfill(' ')<<setw(10)<<"Mission Failed!"<<endl;
+        cout<<setfill('=')<<setw(40);
+        return true;
+    }
+
+    //now checking resources have entered fail state or not
+    if(energy<=0 || time<=0){ 
+       if(energy<=0 && time<=0){
+          cout<<"Both energy and time has been exhausted."<<endl;
+        }
+        else if(energy<=0){
+           cout<<"you have run out of energy."<<endl;
+        }
+        else{
+            cout<<"You have run out of time";
+        }
+        cout<<"Your rescue mission has ended"<<endl;
+        return true;
+        }
+        //if no ending condition false the nwill return false to indentity that keep game running 
+    return false;
+    }
 
 
 
