@@ -248,7 +248,139 @@ if(objectives[14]||objectives[15]){
 }
 }
 
+//function 2--
+bool handleMoveCommand(int targetFloor, int targetRoom,
+                       int& currentFloor, int& currentRoom,
+                       int& energy, int& time,
+                       const char horizontalConn[NUM_FLOORS][ROOMS_PER_FLOOR - 1],
+                       const char inventory[MAX_INVENTORY_CAPACITY], int inventoryCount,
+                       int& emergencyTripsLeft, bool lift2Operational){
+//validation destinantions
+if(targetFloor<1 || targetFloor>NUM_FLOORS || targetRoom<1 || targetRoom>ROOMS_PER_FLOOR){
+    cout<<"Entered destination is invalid "<<endl;
+    return false;
+}
+//checking weather player is not in same room or not 
+if(targetFloor==currentFloor && targetRoom==currentRoom){
+    cout<<"Destination location cannot be current location"<<endl;
+    return false;
+}
+//make constants that will help later in game 
+const int routeInvalid=0;
+const int routeHorizontal=1;
+const int routeStairs=2;
+const int routeLift1=3;
+const int routeLift2=4;
+int routeType=routeInvalid;
+char connectionType=CONN_NONE;
+//now checking weather horizontal movement is possible or not 
+if((targetFloor==currentFloor)&&((targetRoom-currentRoom==1)||(currentRoom-targetRoom==1))){
+    int connectionIndex=(targetRoom<currentRoom) ? targetRoom-1 : currentRoom-1;
+    connectionType=horizontalConn[currentFloor-1][connectionIndex];
+    if(connectionType==CONN_DOOR||connectionType==CONN_WINDOW||connectionType==CONN_LOCKED_DOOR){
+        //so declaring that movement will be horizontal
+        routeType=routeHorizontal;
+    }
+}
+//now check stair movement 
+//stairs operate only between 0 index rooms of all floors
+else if (currentRoom==1 && targetRoom==1){
+    if((currentFloor==1 &&targetFloor==2)||(currentFloor==2 &&targetFloor==1) || (currentFloor==2 && targetFloor==3)||(currentFloor==3 && targetFloor==2)||(currentFloor==4 && targetFloor==5)||(currentFloor==5 && targetFloor==4)){
+        routeType=routeStairs;
+    }
+    }
+//now checking lift one movement
+else if(currentRoom==3 && targetRoom==3){
+    if((currentFloor==1 && targetFloor==2)||(currentFloor==2 && targetFloor==1)){
+        routeType=routeLift1;
+    }
+}
+//now checking movement by left2
+else if(currentRoom==4  && targetRoom==4){
+    bool validMove=(currentFloor==2 || currentFloor==4 || currentFloor==5)&&(targetFloor==2 || targetFloor==4 || targetFloor==5);
+    if(validMove){
+        routeType=routeLift2;
+    }
 
+}
+//reject nonexsistent routes
+if(routeType==routeInvalid){
+    cout<<"No direct route exsist between routes ";
+    return false;
+} 
+// now check if inventory items make movement possible 
+bool hasMasterKey=false;
+bool hasliftPass=false;
+bool hasemergencyCard=false;
+for(int i=0;i<inventoryCount;i++){
+    if(inventory[i]==ENT_MASTER_KEY){
+        hasMasterKey=true;
+    }
+    if(inventory[i]==ENT_LIFT_PASS){
+        hasliftPass=true;
+    }
+    if(inventory[i]==ENT_EMERGENCY_CARD){
+        hasemergencyCard=true;
+    }
+}
+//lock door requirnment
+if(routeType==routeHorizontal && connectionType==CONN_LOCKED_DOOR && !hasMasterKey){
+    cout<<"Master Key required"<<endl;
+    return false;
+}
+//lift two requirnment checks
+bool emergencyTrip=false;
+if(routeType==routeLift2){
+    if(lift2Operational){
+        if(!hasliftPass){
+            cout<<"Lift pass required."<<endl;
+            return false;
+        }
+    }
+    else{
+        if(!hasemergencyCard){
+            cout<<"Emergency Access Card Required";
+            return false;
+        }
+        if(emergencyTripsLeft<=0){
+            cout<<"no emergency trips remaining."<<endl;
+            return false;
+        }
+        emergencyTrip=true;
+    }
+}  
+//now implementation of movement costs here
+int energyCost=COST_MOVE_ORDINARY_ENERGY;
+int timeCost=COST_MOVE_ORDINARY_TIME;
+if(routeType==routeHorizontal && connectionType==CONN_WINDOW){
+    energyCost=COST_MOVE_WINDOW_ENERGY;
+    timeCost=COST_MOVE_WINDOW_TIME;
+}
+else if(routeType==routeLift1 || routeType==routeLift2){
+    energyCost=COST_MOVE_LIFT_ENERGY;
+    timeCost=COST_MOVE_LIFT_TIME;
+}
+//now we have to check resourcses before making changes to make code defensive
+if(energy< -energyCost || time<-timeCost){
+    cout<<"insufficient energy or time."<<endl;
+    return false;
+}
+//now atlast apply the movement 
+time+=timeCost;
+energy+=energyCost;
+if(emergencyTrip){
+    emergencyTripsLeft--;
+}
+currentFloor=targetFloor;
+currentRoom=targetRoom;
+
+cout<<"Movement successfull"<<endl;
+cout<<"Current Location : Floor "<<currentFloor<<" "<<currentRoom<<endl;
+if(emergencyTrip){
+    cout<<"Emergency Trips remianing: "<<emergencyTripsLeft<<endl;
+}
+return true;
+}
 
 
 
