@@ -62,16 +62,21 @@ while(runningStatus){
         break;
     }
     //function for printing header------
-    printHeader("THE LAST TRAIN ");
-    //this functions job is to display current status of player e.g floor and room , energy etc etc
+    clearScreen();
+    printHeader("THE LAST TRAIN");
+    cout<< "       EMERGENCY EVACUATION SIMULATION" << endl;
+    cout<<"\n";
     renderDashboard(playerFloor,playerRoom,energy,time,score,inventory,inventoryCount,emergencyTripsLeft);
-    //this function displays the original ascii bulding map 
+    //this functions job is to display current status of player e.g floor and room , energy etc etc
+    cout<<"\n";
     renderAsciiBuilding(playerFloor,playerRoom);
+    //this function displays the original ascii bulding map 
+    cout<<"\n";
+    renderRoomDetails(playerFloor,playerRoom,roomEntities,entityCounts[playerFloor-1][playerRoom-1]);
+    cout<<"\n";
     //this display information regarding current room
     //roomentities complete 3D array
     //entitycounts this select entity count for players current room
-
-    renderRoomDetails(playerFloor,playerRoom,roomEntities,entityCounts[playerFloor-1][playerRoom-1]);
     //displaying the menu to player in game 
     cout<<"============GAME CONTROLS==========="<<endl;
     cout<<"\n1. Move to another room"<<endl;
@@ -135,8 +140,10 @@ while(runningStatus){
     }
     //displaying the entities present in this room 
     cout<<"\n=============Avalible Items============="<<endl;
+    
     for(int i=0;i<currentCount;i++){
-        cout<<i+1<<". "<<roomEntities[playerFloor-1][playerRoom-1][i]<<endl;
+        char item=roomEntities[playerFloor-1][playerRoom-1][i];
+        cout<<i+1<<". "<<getEntityName(item)<<endl;
     }
     //asking user to select what he wants 
     cout<<"Select item no : ";
