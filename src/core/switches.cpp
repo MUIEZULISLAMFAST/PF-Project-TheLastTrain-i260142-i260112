@@ -52,3 +52,69 @@ bool unlockFloor3Door(const char inventory[MAX_INVENTORY_CAPACITY], int inventor
         return false;
     }
 }
+
+//function 4 
+bool installFuseControlPanel(char inventory[MAX_INVENTORY_CAPACITY], int& inventoryCount,
+                             bool objectives[NUM_OBJECTIVES], int& score){
+//validation checking first 
+ if ((inventory==nullptr)||(objectives==nullptr)){
+    return false;
+ }
+ //validating inventory count 
+ if (inventoryCount>MAX_INVENTORY_CAPACITY || inventoryCount<0){
+    return false;
+ }
+ //score cannot be negative
+ if (score<0){
+    return false;
+ }
+ //check weather already complted or not to avoid giving score bonus twice
+ if(objectives[OBJ_FUSE_INSTALLED]){
+    return false;
+ }
+ //using flag here
+ bool foundFuse=false;
+ int fuseIndex=-1;
+ for (int i=0;i<inventoryCount;i++){
+    if (inventory[i]==ENT_FUSE){
+        foundFuse=true;
+        fuseIndex=i;
+        break;
+    }
+ }
+ if(!foundFuse){
+    return false;
+ }
+else{
+    //process to remove fuse from inventory as it is going to be used
+    for(int i=fuseIndex;i<inventoryCount-1;i++){
+        inventory[i]=inventory[i+1];
+    }
+    inventoryCount-=1;
+    //assigning null value to left most index that will be fuse there 
+    inventory[inventoryCount]='\0';
+    //updating objectives 
+    objectives[OBJ_FUSE_INSTALLED]=true;
+    //activating lift2 
+    objectives[OBJ_LIFT2_ACTIVE]=true;
+    //score reward for activating lift
+    score+=SCORE_INSTALL_FUSE;
+    //after full succcessfull process
+    return true;
+}}
+//function 5- 
+bool verifyCabinetCode(const char* enteredCode, const bool objectives[NUM_OBJECTIVES]){
+if (enteredCode==nullptr || objectives==nullptr){
+    return false;
+}
+//checking weather all clues obtained or not 
+if(!objectives[OBJ_CLUE_2] || !objectives[OBJ_CLUE_4] || !objectives[OBJ_CLUE_7] ){
+    return false;
+}
+const char actualCode[]="427";
+//using function mentioned in ultil instead of writing whole code again
+if(stringEquals(enteredCode,actualCode)){
+    return true;
+}
+return  false;
+}
