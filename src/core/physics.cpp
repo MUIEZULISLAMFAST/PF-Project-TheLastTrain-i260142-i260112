@@ -40,21 +40,46 @@ outConnType=connection;
 //even solid wall be rejected beacuse it can also not be considered as valid physical movement condition.
 return outConnType==CONN_DOOR || outConnType==CONN_WINDOW || outConnType==CONN_LOCKED_DOOR;
 }
+bool canTraverse(int targetFloor, int targetRoom, char connType,
+                 const char inventory[MAX_INVENTORY_CAPACITY], int inventoryCount,
+                 int emergencyTripsLeft, bool lift2Operational){
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-                         
+//validating target floor and target room
+if(targetFloor>NUM_FLOORS-1 || targetFloor<0 || targetRoom>ROOMS_PER_FLOOR-1 || targetRoom<0){
+    return false;
+}
+//checking inventory has valid address or not ?
+if(inventory==nullptr){
+    return false;
+}
+//inventorycount validation as safety measure
+if(inventoryCount<0 || inventoryCount>MAX_INVENTORY_CAPACITY){
+    return false;
+}
+//checking door and windows connection and allowing movement 
+if(connType==CONN_DOOR || connType==CONN_WINDOW){
+    return true;
+}
+else if(connType==CONN_LOCKED_DOOR){
+    //checking weather player has master key or not ? 
+    if(hasItem(inventory,inventoryCount,ENT_MASTER_KEY)){
+        return true;
+    }
+    else{
+        return false;
+    }
+}
+//checking weather lift2 works on the current room
+ bool isLift2Room = (targetRoom ==3) && (targetFloor ==1 || targetFloor ==3 || targetFloor ==4);
+//check only if there is no possible connection between rooms earlier 
+    if (isLift2Room && connType == CONN_NONE) {
+        // Normal Lift 2 access
+        if (lift2Operational) {
+            return hasItem(inventory, inventoryCount, ENT_LIFT_PASS);
+        }
+        // Emergency Lift 2 access
+        return (emergencyTripsLeft >0) && hasItem(inventory, inventoryCount, ENT_EMERGENCY_CARD);
+}
+//none cases work so then return false;
+return false;
+}

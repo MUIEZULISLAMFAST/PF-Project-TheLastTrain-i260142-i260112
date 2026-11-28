@@ -26,7 +26,7 @@ if(inventory==nullptr || objectives==nullptr || horizontalConn==nullptr || roomE
     return ;
 }
 //checking validity of all variables  
-if (playerFloor>NUM_FLOORS || playerFloor<1 || playerRoom>ROOMS_PER_FLOOR || playerRoom<1 || energy>MAX_ENERGY || energy<0 || time<0 || time>MAX_TIME || inventoryCount>MAX_INVENTORY_CAPACITY || inventoryCount<0 || emergencyTripsLeft >3 || emergencyTripsLeft<0 || score<0 || score>MAX_SCORE){
+if (playerFloor>NUM_FLOORS || playerFloor<1 || playerRoom>ROOMS_PER_FLOOR || playerRoom<1 || energy>MAX_ENERGY || energy<0 || time<0 || time>MAX_TIME || inventoryCount>MAX_INVENTORY_CAPACITY || inventoryCount<0 || emergencyTripsLeft >2 || emergencyTripsLeft<0 || score<0 || score>MAX_SCORE){
   cout<<"Invalid Initial State";
   return;
 }
@@ -118,7 +118,7 @@ while(runningStatus){
         break;
     }
     // function check weather movement is actually possible or not if allowed it updates players location and resources
-    handleMoveCommand(targetFloor,targetRoom,playerFloor,playerRoom,energy,time,horizontalConn,inventory,inventoryCount,emergencyTripsLeft,objectives[9]);
+    handleMoveCommand(targetFloor,targetRoom,playerFloor,playerRoom,energy,time,horizontalConn,inventory,inventoryCount,emergencyTripsLeft,objectives[OBJ_LIFT2_ACTIVE]);
     break;}
     //objective[9] is liftoperational20
     case 2:
@@ -243,11 +243,10 @@ while(runningStatus){
 }
 }
 //objective 14 corresponds to misiion won and objective [15] to mission fail
-if(objectives[14]||objectives[15]){
-    writeGameSummaryReport("out/game_summary.txt",score,energy,time,objectives,objectives[14]);
+if(objectives[OBJ_MISSION_WON]||objectives[OBJ_MISSION_FAILED]){
+    writeGameSummaryReport("out/game_summary.txt",score,energy,time,objectives,objectives[OBJ_MISSION_WON]);
 }
 }
-
 //function 2--
 bool handleMoveCommand(int targetFloor, int targetRoom,
                        int& currentFloor, int& currentRoom,

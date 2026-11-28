@@ -2,6 +2,7 @@
 #include "level.h"
 #include "logger.h"
 #include "viewer_iface.h"
+#include "config.h"
 #include <iostream>
 
 int main() {

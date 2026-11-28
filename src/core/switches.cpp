@@ -52,4 +52,3 @@ bool unlockFloor3Door(const char inventory[MAX_INVENTORY_CAPACITY], int inventor
         return false;
     }
 }
-
