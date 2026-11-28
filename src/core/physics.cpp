@@ -83,3 +83,99 @@ else if(connType==CONN_LOCKED_DOOR){
 //none cases work so then return false;
 return false;
 }
+
+void applyResourceDelta(int& energy, int& time, int deltaEnergy, int deltaTime){
+//validation of given parameters 
+if(energy<0 || energy>MAX_ENERGY || time<0 || time>MAX_TIME) {
+    //not returning false because it is void function
+        return;
+    }
+//delta is defined as difference 
+time+=deltaTime;
+energy+=deltaEnergy;
+if (energy>MAX_ENERGY){
+    energy=MAX_ENERGY;
+}
+if (time>MAX_TIME){
+    time=MAX_TIME;
+}
+energy=(energy<0) ? 0 :energy;
+time= (time<0) ? 0 : time;
+}
+
+void applyScoreDelta(int& score, int deltaScore){
+    //if initial score is negative first reset it to zero and then save 
+    score=(score<0) ? 0 : score;
+    score+=deltaScore;
+    if(score>MAX_SCORE){
+        score=MAX_SCORE;
+    }
+    //again verifying after calculation 
+    score=(score<0) ? 0 : score;
+}
+
+bool hasItem(const char inventory[MAX_INVENTORY_CAPACITY], int inventoryCount, char itemSymbol){
+    //checking pointer is valid or not ? 
+    if (inventory==nullptr){
+        return false;
+    }
+    //validating inventory
+    if (inventoryCount>MAX_INVENTORY_CAPACITY || inventoryCount<0){
+        return false;
+    }
+    //checking weather in player inventory he has that inventory item
+    for (int i=0;i<inventoryCount;i++){
+        if(inventory[i]==itemSymbol){
+            return true;
+        }
+    }
+    return false;
+}
+bool addItem(char inventory[MAX_INVENTORY_CAPACITY], int& inventoryCount, char itemSymbol){
+ //checking pointer is valid or not ? 
+    if (inventory==nullptr){
+        return false;
+    }
+    if (inventoryCount>MAX_INVENTORY_CAPACITY || inventoryCount<0 || inventoryCount==MAX_INVENTORY_CAPACITY){
+        return false;
+    }
+    //it will prevent duplicates in inventory as everything in inventory is unique 
+    if(hasItem(inventory,inventoryCount,itemSymbol)){
+        return false;
+    }
+    //add item to next index 
+    inventory[inventoryCount]=itemSymbol;
+    inventoryCount+=1;
+    return true;
+}
+bool removeItem(char inventory[MAX_INVENTORY_CAPACITY], int& inventoryCount, char itemSymbol){
+if (inventory==nullptr){
+    return false;
+}
+if (inventoryCount>MAX_INVENTORY_CAPACITY || inventoryCount<0 || inventoryCount==0){
+    return false;
+}
+//declaring indexdector invalid to check weather any item matches later 
+int indexDectector=-2;
+//loop for finding match in index 
+for (int i=0;i<inventoryCount;i++){
+    if (inventory[i]==itemSymbol){
+        indexDectector=i;
+        break;
+    }
+}
+//if not updated then this mean item not found so to prevent program to crash we should exit function safetly 
+if (indexDectector==-2){
+    return false;
+}
+//shifting the detected item too the last index 
+for (int k=indexDectector;k<inventoryCount-1;k++){
+    inventory[k]=inventory[k+1];
+}
+//decreasing inventory count
+inventoryCount-=1;
+//declearing the last most left detected item to null 
+inventory[inventoryCount]='\0';
+//returning true when removed successfully;
+return true;
+}
